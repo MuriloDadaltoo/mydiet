@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dieta IBS & Gastrite</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --surface: #181c27;
+    --card: #1e2333;
+    --border: #2a3045;
+    --accent: #4ade80;
+    --accent2: #34d399;
+    --warn: #fb923c;
+    --danger: #f87171;
+    --muted: #6b7280;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --good: #86efac;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 0 0 80px;
+  }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 20px 14px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .app-title {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .date-display {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .progress-bar-wrap {
+    background: var(--border);
+    border-radius: 99px;
+    height: 6px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    transition: width 0.5s ease;
+  }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    padding: 0 16px;
+  }
+
+  .tab-btn {
+    padding: 12px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ALERTS SECTION */
+  .alerts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 16px;
+  }
+
+  .alert-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+  }
+
+  .alert-card.checked {
+    border-color: var(--accent);
+    background: rgba(74, 222, 128, 0.06);
+  }
+
+  .alert-card.danger-item.checked {
+    border-color: var(--danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+
+  .alert-icon {
+    font-size: 22px;
+    line-height: 1;
+  }
+
+  .alert-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text2);
+    line-height: 1.3;
+  }
+
+  .alert-card.checked .alert-label {
+    color: var(--accent);
+  }
+
+  .alert-card.danger-item.checked .alert-label {
+    color: var(--danger);
+  }
+
+  .check-indicator {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: transparent;
+    align-self: flex-end;
+    transition: all 0.2s;
+  }
+
+  .alert-card.checked .check-indicator {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+  }
+
+  .alert-card.danger-item.checked .check-indicator {
+    background: var(--danger);
+    border-color: var(--danger);
+    color: #fff;
+  }
+
+  /* MEALS SECTION */
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    padding: 16px 16px 8px;
+  }
+
+  .meal-block {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    margin: 0 16px 12px;
+    overflow: hidden;
+  }
+
+  .meal-header {
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+
+  .meal-time {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(74, 222, 128, 0.1);
+    padding: 2px 8px;
+    border-radius: 99px;
+  }
+
+  .meal-name {
+    font-size: 14px;
+    font-weight: 600;
+    flex: 1;
+  }
+
+  .meal-kcal {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .meal-toggle {
+    font-size: 12px;
+    color: var(--muted);
+    transition: transform 0.2s;
+  }
+
+  .meal-block.open .meal-toggle { transform: rotate(180deg); }
+
+  .meal-items {
+    display: none;
+    padding: 0 16px 14px;
+    border-top: 1px solid var(--border);
+  }
+
+  .meal-block.open .meal-items { display: block; }
+
+  .meal-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(42,48,69,0.5);
+    cursor: pointer;
+  }
+
+  .meal-item:last-child { border-bottom: none; }
+
+  .meal-checkbox {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    border: 1.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: transparent;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+
+  .meal-item.done .meal-checkbox {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+  }
+
+  .meal-item-info { flex: 1; }
+
+  .meal-item-name {
+    font-size: 13px;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+
+  .meal-item.done .meal-item-name {
+    color: var(--muted);
+    text-decoration: line-through;
+  }
+
+  .meal-item-qty {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .meal-item-kcal {
+    font-size: 11px;
+    color: var(--accent2);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* TIP BOX */
+  .tip-box {
+    background: rgba(74, 222, 128, 0.05);
+    border: 1px solid rgba(74, 222, 128, 0.15);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin: 0 16px 12px;
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+
+  .tip-box strong { color: var(--accent); }
+
+  /* WEIGHT SECTION */
+  .weight-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    margin: 0 16px 12px;
+    padding: 16px;
+  }
+
+  .weight-display {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .weight-big {
+    font-size: 42px;
+    font-weight: 300;
+    font-family: 'DM Mono', monospace;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .weight-unit { color: var(--muted); font-size: 16px; }
+
+  .weight-meta {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .weight-input-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .weight-input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-size: 15px;
+    font-family: 'DM Mono', monospace;
+    outline: none;
+  }
+
+  .weight-input:focus { border-color: var(--accent); }
+
+  .btn-save {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: opacity 0.2s;
+  }
+
+  .btn-save:hover { opacity: 0.85; }
+
+  .weight-history {
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .weight-entry {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .weight-entry:last-child { border-bottom: none; }
+
+  .weight-entry-date { color: var(--muted); }
+  .weight-entry-val { color: var(--accent); }
+
+  /* SHOPPING LIST */
+  .shop-section {
+    margin: 0 16px 14px;
+  }
+
+  .shop-category {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+    padding: 14px 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .shop-category-icon { font-size: 15px; }
+
+  .shop-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+  }
+
+  .shop-item:last-child { border-bottom: none; }
+
+  .shop-cb {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    border: 1.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: transparent;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+
+  .shop-item.bought .shop-cb {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+  }
+
+  .shop-item-name {
+    flex: 1;
+    font-size: 13px;
+    transition: all 0.2s;
+  }
+
+  .shop-item.bought .shop-item-name {
+    color: var(--muted);
+    text-decoration: line-through;
+  }
+
+  .shop-item-qty {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .shop-reset-btn {
+    display: block;
+    width: 100%;
+    margin: 10px 0 0;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--muted);
+    padding: 10px;
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .shop-reset-btn:hover {
+    border-color: var(--warn);
+    color: var(--warn);
+  }
+
+  /* SUMMARY BADGES */
+  .summary-row {
+    display: flex;
+    gap: 8px;
+    padding: 0 16px 0;
+    margin-bottom: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .summary-row::-webkit-scrollbar { display: none; }
+
+  .summary-badge {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 12px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .badge-label {
+    font-size: 10px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 2px;
+  }
+
+  .badge-val {
+    font-size: 16px;
+    font-weight: 600;
+    font-family: 'DM Mono', monospace;
+    color: var(--accent);
+  }
+
+  .streak-bar {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin: 0 16px 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .streak-icon { font-size: 24px; }
+
+  .streak-text { flex: 1; }
+  .streak-title { font-size: 13px; font-weight: 600; }
+  .streak-sub { font-size: 11px; color: var(--muted); }
+
+  .streak-count {
+    font-size: 28px;
+    font-weight: 300;
+    font-family: 'DM Mono', monospace;
+    color: var(--warn);
+  }
+
+  /* toast */
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--card);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 10px 20px;
+    border-radius: 99px;
+    font-size: 13px;
+    font-weight: 500;
+    transition: transform 0.3s ease;
+    z-index: 999;
+    white-space: nowrap;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 4px 16px 8px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <span class="app-title">🌿 Minha Dieta</span>
+    <span class="date-display" id="dateDisplay">—</span>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="weightProgress" style="width: 0%"></div>
+  </div>
+  <div class="progress-label">
+    <span>Peso atual: <span id="currentWeightLabel">94 kg</span></span>
+    <span>Meta: 86 kg · Set/2025</span>
+  </div>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('hoje')">Hoje</button>
+  <button class="tab-btn" onclick="switchTab('dieta')">Dieta</button>
+  <button class="tab-btn" onclick="switchTab('peso')">Peso</button>
+  <button class="tab-btn" onclick="switchTab('compras')">Compras</button>
+</div>
+
+<!-- TAB: HOJE -->
+<div id="tab-hoje" class="tab-panel active">
+
+  <div class="section-label">⚠️ Alertas do dia — evitar</div>
+
+  <div class="alerts-grid" id="alertsGrid">
+    <div class="alert-card danger-item" onclick="toggleAlert(this)">
+      <span class="alert-icon">☕</span>
+      <span class="alert-label">Sem café</span>
+      <div class="check-indicator">✓</div>
+    </div>
+    <div class="alert-card danger-item" onclick="toggleAlert(this)">
+      <span class="alert-icon">🚬</span>
+      <span class="alert-label">Sem cigarro</span>
+      <div class="check-indicator">✓</div>
+    </div>
+    <div class="alert-card danger-item" onclick="toggleAlert(this)">
+      <span class="alert-icon">🍺</span>
+      <span class="alert-label">Sem álcool</span>
+      <div class="check-indicator">✓</div>
+    </div>
+    <div class="alert-card danger-item" onclick="toggleAlert(this)">
+      <span class="alert-icon">🥛</span>
+      <span class="alert-label">Sem lactose</span>
+      <div class="check-indicator">✓</div>
+    </div>
+    <div class="alert-card danger-item" onclick="toggleAlert(this)">
+      <span class="alert-icon">🌶️</span>
+      <span class="alert-label">Sem picante</span>
+      <div class="check-indicator">✓</div>
+    </div>
+    <div class="alert-card danger-item" onclick="toggleAlert(this)">
+      <span class="alert-icon">🍟</span>
+      <span class="alert-label">Sem frituras</span>
+      <div class="check-indicator">✓</div>
+    </div>
+    <div class="alert-card danger-item" onclick="toggleAlert(this)">
+      <span class="alert-icon">🍫</span>
+      <span class="alert-label">Sem chocolate</span>
+      <div class="check-indicator">✓</div>
+    </div>
+    <div class="alert-card danger-item" onclick="toggleAlert(this)">
+      <span class="alert-icon">🥤</span>
+      <span class="alert-label">Sem refrigerante</span>
+      <div class="check-indicator">✓</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-label">✅ Bons hábitos</div>
+  <div class="alerts-grid">
+    <div class="alert-card" onclick="toggleAlert(this)">
+      <span class="alert-icon">💧</span>
+      <span class="alert-label">2L de água</span>
+      <div class="check-indicator">✓</div>
+    </div>
+    <div class="alert-card" onclick="toggleAlert(this)">
+      <span class="alert-icon">🚶</span>
+      <span class="alert-label">Caminhada 20min</span>
+      <div class="check-indicator">✓</div>
+    </div>
+    <div class="alert-card" onclick="toggleAlert(this)">
+      <span class="alert-icon">😴</span>
+      <span class="alert-label">Dormir 22h</span>
+      <div class="check-indicator">✓</div>
+    </div>
+    <div class="alert-card" onclick="toggleAlert(this)">
+      <span class="alert-icon">💊</span>
+      <span class="alert-label">Medicação</span>
+      <div class="check-indicator">✓</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-label">🍽️ Refeições do dia</div>
+
+  <div class="summary-row">
+    <div class="summary-badge">
+      <div class="badge-label">KCAL TOTAL</div>
+      <div class="badge-val">~1500</div>
+    </div>
+    <div class="summary-badge">
+      <div class="badge-label">PROTEÍNAS</div>
+      <div class="badge-val">~90g</div>
+    </div>
+    <div class="summary-badge">
+      <div class="badge-label">FIBRAS</div>
+      <div class="badge-val">~20g</div>
+    </div>
+    <div class="summary-badge">
+      <div class="badge-label">CARBOS</div>
+      <div class="badge-val">~150g</div>
+    </div>
+  </div>
+  <div style="padding: 6px 0"></div>
+
+  <!-- Café da manhã -->
+  <div class="meal-block open">
+    <div class="meal-header" onclick="toggleMeal(this.parentElement)">
+      <span class="meal-time">07:00</span>
+      <span class="meal-name">Café da manhã</span>
+      <span class="meal-kcal">~300 kcal</span>
+      <span class="meal-toggle">▼</span>
+    </div>
+    <div class="meal-items">
+      <div class="meal-item" onclick="toggleMealItem(this)">
+        <div class="meal-checkbox">✓</div>
+        <div class="meal-item-info">
+          <div class="meal-item-name">Creme de arroz cozido</div>
+          <div class="meal-item-qty">4 colheres de sopa • suave, sem tempero</div>
+        </div>
+        <div class="meal-item-kcal">130</div>
+      </div>
+      <div class="meal-item" onclick="toggleMealItem(this)">
+        <div class="meal-checkbox">✓</div>
+        <div class="meal-item-info">
+          <div class="meal-item-name">Banana-prata amassada</div>
+          <div class="meal-item-qty">1 unidade média</div>
+        </div>
+        <div class="meal-item-kcal">90</div>
+      </div>
+      <div class="meal-item" onclick="toggleMealItem(this)">
+        <div class="meal-checkbox">✓</div>
+        <div class="meal-item-info">
+          <div class="meal-item-name">Chá de camomila ou erva-doce</div>
+          <div class="meal-item-qty">1 xícara, sem açúcar</div>
+        </div>
+        <div class="meal-item-kcal">5</div>
+      </div>
+      <div class="meal-item" onclick="toggleMealItem(this)">
+        <div class="meal-checkbox">✓</div>
+        <div class="meal-item-info">
+          <div class="meal-item-name">Ovos mexidos no vapor</div>
+          <div class="meal-item-qty">2 ovos, sem manteiga</div>
+        </div>
+        <div class="meal-item-kcal">140</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lanche manhã -->
+  <div class="meal-block">
+    <div class="meal-header" onclick="toggleMeal(this.parentElement)">
+      <span class="meal-time">10:00</span>
+      <span class="meal-name">Lanche da manhã</span>
+      <span class="meal-kcal">~120 kcal</span>
+      <span class="meal-toggle">▼</span>
+    </div>
+    <div class="meal-items">
+      <div class="meal-item" onclick="toggleMealItem(this)">
+        <div class="meal-checkbox">✓</div>
+        <div class="meal-item-info">
+          <div class="meal-item-name">Maçã ou pera sem casca</div>
+          <div class="meal-item-qty">1 unidade</div>
+        </div>
+        <div class="meal-item-kcal">70</div>
+      </div>
+      <div class="meal-item" onclick="toggleMealItem(this)">
+        <div class="meal-checkbox">✓</div>
+        <div class="meal-item-info">
+          <div class="meal-item-name">Água com limão</div>
+          <div class="meal-item-qty">200ml, só se bem tolerado</div>
+        </div>
+        <div class="meal-item-kcal">10</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Almoço -->
+  <div class="meal-block">
+    <div class="meal-header" onclick="toggleMeal(this.parentElement)">
+      <span class="meal-time">12:30</span>
+      <span class="meal-name">Almoço</span>
+      <span class="meal-kcal">~450 kcal</span>
+      <span class="meal-toggle">▼</span>
+    </div>
+    <div class="meal-items">
+      <div class="meal-item" onclick="toggleMealItem(this)">
+        <div class="meal-checkbox">✓</div>
+        <div class="meal-item-info">
+          <div class="meal-item-name">Frango cozido ou grelhado</div>
+          <div class="meal-item-qty">120g, sem pele, sem molho</div>
+        </div>
+        <div class="meal-item-kcal">180</div>
+      </div>
+      <div class="meal-item" onclick="toggleMealItem(this)">
+        <div class="meal-checkbox">✓</div>
+        <div class="meal-item-info">
+          <div class="meal-item-name">Arroz branco cozido</div>
+          <div class="meal-item-qty">4 colheres de sopa</div>
+        </div>
+        <div class="meal-item-kcal">120</div>
+      </div>
+      <div class="meal-item" onclick="toggleMealItem(this)">
+        <div class="meal-checkbox">✓</div>
+        <div class="meal-item-info">
+          <div class="meal-item-name">Abobrinha ou cenoura cozida</div>
+          <div class="meal-item-qty">150g, bem cozida, sem tempero</div>
+        </div>
+        <div class="meal-item-kcal">50</div>
+      </div>
+      <div class="meal-item" onclick="toggleMealItem(this)">
+        <div class="meal-checkbox">✓</div>
+        <div class="meal-item-info">
+          <div class="meal-item-name">Feijão-carioca bem cozido</div>
+          <div class="meal-item-qty">2 colheres de sopa (opcional)</div>
+        </div>
+        <div class="meal-item-kcal">80</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lanche tarde -->
+  <div class="meal-block">
+    <div class="meal-header" onclick="toggleMeal(this.parentElement)">
+      <span class="meal-time">15:30</span>
+      <span class="meal-name">Lanche da tarde</span>
+      <span class="meal-kcal">~180 kcal</span>
+      <span class="meal-toggle">▼</span>
+    </div>
+    <div class="meal-items">
+      <div class="meal-item" onclick="toggleMealItem(this)">
+        <div class="meal-checkbox">✓</div>
+        <div class="meal-item-info">
+          <div class="meal-item-name">Batata-doce cozida</div>
+          <div class="meal-item-qty">1 unidade pequena (100g)</div>
+        </div>
+        <div class="meal-item-kcal">90</div>
+      </div>
+      <div class="meal-item" onclick="toggleMealItem(this)">
+        <div class="meal-checkbox">✓</div>
+        <div class="meal-item-info">
+          <div class="meal-item-name">Chá de hortelã</div>
+          <div class="meal-item-qty">1 xícara, sem açúcar</div>
+        </div>
+        <div class="meal-item-kcal">5</div>
+      </div>
+      <div class="meal-item" onclick="toggleMealItem(this)">
+        <div class="meal-checkbox">✓</div>
+        <div class="meal-item-info">
+          <div class="meal-item-name">Biscoito de arroz</div>
+          <div class="meal-item-qty">3 unidades</div>
+        </div>
+        <div class="meal-item-kcal">70</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Jantar -->
+  <div class="meal-block">
+    <div class="meal-header" onclick="toggleMeal(this.parentElement)">
+      <span class="meal-time">19:00</span>
+      <span class="meal-name">Jantar</span>
+      <span class="meal-kcal">~350 kcal</span>
+      <span class="meal-toggle">▼</span>
+    </div>
+    <div class="meal-items">
+      <div class="meal-item" onclick="toggleMealItem(this)">
+        <div class="meal-checkbox">✓</div>
+        <div class="meal-item-info">
+          <div class="meal-item-name">Peixe branco cozido no vapor</div>
+          <div class="meal-item-qty">120g (tilápia ou merluza)</div>
+        </div>
+        <div class="meal-item-kcal">130</div>
+      </div>
+      <div class="meal-item" onclick="toggleMealItem(this)">
+        <div class="meal-checkbox">✓</div>
+        <div class="meal-item-info">
+          <div class="meal-item-name">Purê de batata inglesa</div>
+          <div class="meal-item-qty">150g, só com azeite leve</div>
+        </div>
+        <div class="meal-item-kcal">110</div>
+      </div>
+      <div class="meal-item" onclick="toggleMealItem(this)">
+        <div class="meal-checkbox">✓</div>
+        <div class="meal-item-info">
+          <div class="meal-item-name">Chuchu cozido</div>
+          <div class="meal-item-qty">150g</div>
+        </div>
+        <div class="meal-item-kcal">40</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ceia -->
+  <div class="meal-block">
+    <div class="meal-header" onclick="toggleMeal(this.parentElement)">
+      <span class="meal-time">21:00</span>
+      <span class="meal-name">Ceia leve</span>
+      <span class="meal-kcal">~100 kcal</span>
+      <span class="meal-toggle">▼</span>
+    </div>
+    <div class="meal-items">
+      <div class="meal-item" onclick="toggleMealItem(this)">
+        <div class="meal-checkbox">✓</div>
+        <div class="meal-item-info">
+          <div class="meal-item-name">Chá de melissa</div>
+          <div class="meal-item-qty">1 xícara, anti-inflamatório, calmante</div>
+        </div>
+        <div class="meal-item-kcal">5</div>
+      </div>
+      <div class="meal-item" onclick="toggleMealItem(this)">
+        <div class="meal-checkbox">✓</div>
+        <div class="meal-item-info">
+          <div class="meal-item-name">Banana-prata</div>
+          <div class="meal-item-qty">½ unidade ou geleia sem açúcar</div>
+        </div>
+        <div class="meal-item-kcal">45</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tip-box">
+    <strong>💡 Dica de hoje:</strong> Mastige devagar e coma em porções menores. Deixe pelo menos 3h entre a última refeição e deitar. Evite deitar logo após comer — isso piora a gastrite.
+  </div>
+
+</div>
+
+<!-- TAB: DIETA -->
+<div id="tab-dieta" class="tab-panel">
+  <div class="section-label">📋 Protocolo alimentar</div>
+
+  <div class="tip-box" style="margin-bottom:12px">
+    <strong>Contexto:</strong> 94kg · 181cm · IMC 28,7 · Meta: 86kg até setembro<br>
+    Déficit calórico de ~500 kcal/dia = -0,5kg/semana (~4kg em 8 semanas).<br><br>
+    <strong>Condições:</strong> SII (IBS) + gastrite ativa. Dieta antiinflamatória, low-FODMAP suave, baixo ácido.
+  </div>
+
+  <div class="section-label">🟢 Alimentos permitidos</div>
+  <div class="weight-card">
+    <p style="font-size:13px;line-height:1.8;color:var(--text2)">
+      <strong style="color:var(--accent)">Carboidratos:</strong> arroz branco, batata inglesa, batata-doce, macarrão bem cozido, creme de arroz, tapioca simples, biscoito de arroz<br><br>
+      <strong style="color:var(--accent)">Proteínas:</strong> frango sem pele (cozido/grelhado), peixe branco, ovo (mexido ou cozido), tofu firme<br><br>
+      <strong style="color:var(--accent)">Vegetais:</strong> abobrinha, cenoura, chuchu, beterraba cozida, espinafre cozido, pepino sem casca<br><br>
+      <strong style="color:var(--accent)">Frutas:</strong> banana, maçã sem casca, pera sem casca, mamão, melão<br><br>
+      <strong style="color:var(--accent)">Gorduras boas:</strong> azeite de oliva extra-virgem (pequena qtd), abacate (com moderação)<br><br>
+      <strong style="color:var(--accent)">Chás:</strong> camomila, erva-doce, hortelã, melissa, gengibre leve
+    </p>
+  </div>
+
+  <div class="section-label">🔴 Alimentos proibidos (crise)</div>
+  <div class="weight-card">
+    <p style="font-size:13px;line-height:1.8;color:var(--text2)">
+      <strong style="color:var(--danger)">Estimulantes:</strong> café, chá preto, chá verde, energéticos, guaraná<br><br>
+      <strong style="color:var(--danger)">Lácteos:</strong> leite, queijo, manteiga, iogurte convencional, sorvete<br><br>
+      <strong style="color:var(--danger)">Irritantes gástricos:</strong> pimenta, vinagre, tomate (cru), cebola crua, alho cru, laranja, limão (em excesso)<br><br>
+      <strong style="color:var(--danger)">Ultraprocessados:</strong> embutidos, salgadinhos, fast food, enlatados com conservantes<br><br>
+      <strong style="color:var(--danger)">Glúten problemático:</strong> pão branco industrial, macarrão instantâneo, bolacha recheada<br><br>
+      <strong style="color:var(--danger)">Outros:</strong> álcool, chocolate, frituras, refrigerante, cigarro, excesso de gordura saturada
+    </p>
+  </div>
+
+  <div class="section-label">🧠 Estratégias para TDAH + dieta</div>
+  <div class="weight-card">
+    <p style="font-size:13px;line-height:1.8;color:var(--text2)">
+      • <strong style="color:var(--accent)">Prepare no domingo:</strong> fracione e separe os alimentos da semana.<br>
+      • <strong style="color:var(--accent)">Alarmes no celular</strong> para cada refeição — TDAH esquece de comer e hiperfoca.<br>
+      • <strong style="color:var(--accent)">Não pule refeições</strong> — pior para gastrite e para o metabolismo.<br>
+      • <strong style="color:var(--accent)">Deixe frutas à vista</strong> e biscoitos de arroz acessíveis para impulsos.<br>
+      • <strong style="color:var(--accent)">Registre aqui:</strong> o ato de marcar o checkbox libera dopamina — use a seu favor!
+    </p>
+  </div>
+</div>
+
+<!-- TAB: PESO -->
+<div id="tab-peso" class="tab-panel">
+  <div class="section-label">⚖️ Acompanhamento de peso</div>
+
+  <div class="weight-card">
+    <div class="weight-display">
+      <span class="weight-big" id="displayWeight">94,0</span>
+      <span class="weight-unit">kg</span>
+    </div>
+    <div class="weight-meta">Meta: <strong>86 kg</strong> · Faltam <strong id="weightDiff">8,0 kg</strong> · Progresso: <strong id="weightPct">0%</strong></div>
+    <div class="weight-input-row">
+      <input class="weight-input" id="weightInput" type="number" step="0.1" placeholder="Ex: 93.4" />
+      <button class="btn-save" onclick="saveWeight()">Registrar</button>
+    </div>
+    <div class="weight-history" id="weightHistory"></div>
+  </div>
+
+  <div class="streak-bar">
+    <span class="streak-icon">🔥</span>
+    <div class="streak-text">
+      <div class="streak-title">Sequência de dias saudáveis</div>
+      <div class="streak-sub">Dias sem itens proibidos marcados</div>
+    </div>
+    <span class="streak-count" id="streakCount">0</span>
+  </div>
+
+  <div class="tip-box">
+    <strong>📅 Frequência ideal:</strong> Pese-se sempre no mesmo horário, preferencialmente pela manhã em jejum, após ir ao banheiro. Variações de 0,5–1kg ao dia são normais (água, sal, intestino).
+  </div>
+</div>
+
+<!-- TAB: COMPRAS -->
+<div id="tab-compras" class="tab-panel">
+  <div class="section-label">🛒 Lista de compras semanal</div>
+  <div class="tip-box">Lista para <strong>7 dias</strong> da dieta IBS + gastrite. Toque para marcar o que já comprou.
+  </div>
+
+  <div class="shop-section">
+
+    <div class="shop-category"><span class="shop-category-icon">🥩</span> Proteínas</div>
+    <div class="shop-item" onclick="toggleShop(this)"><div class="shop-cb">✓</div><span class="shop-item-name">Peito de frango</span><span class="shop-item-qty">1 kg</span></div>
+    <div class="shop-item" onclick="toggleShop(this)"><div class="shop-cb">✓</div><span class="shop-item-name">Tilápia ou merluza</span><span class="shop-item-qty">600g</span></div>
+    <div class="shop-item" onclick="toggleShop(this)"><div class="shop-cb">✓</div><span class="shop-item-name">Ovos</span><span class="shop-item-qty">12 unidades</span></div>
+    <div class="shop-item" onclick="toggleShop(this)"><div class="shop-cb">✓</div><span class="shop-item-name">Atum em água (lata)</span><span class="shop-item-qty">2 latas</span></div>
+
+    <div class="shop-category"><span class="shop-category-icon">🌾</span> Carboidratos</div>
+    <div class="shop-item" onclick="toggleShop(this)"><div class="shop-cb">✓</div><span class="shop-item-name">Arroz branco tipo 1</span><span class="shop-item-qty">2 kg</span></div>
+    <div class="shop-item" onclick="toggleShop(this)"><div class="shop-cb">✓</div><span class="shop-item-name">Batata-doce</span><span class="shop-item-qty">1 kg</span></div>
+    <div class="shop-item" onclick="toggleShop(this)"><div class="shop-cb">✓</div><span class="shop-item-name">Batata inglesa</span><span class="shop-item-qty">1 kg</span></div>
+    <div class="shop-item" onclick="toggleShop(this)"><div class="shop-cb">✓</div><span class="shop-item-name">Biscoito de arroz</span><span class="shop-item-qty">2 pacotes</span></div>
+    <div class="shop-item" onclick="toggleShop(this)"><div class="shop-cb">✓</div><span class="shop-item-name">Creme de arroz</span><span class="shop-item-qty">1 pacote</span></div>
+    <div class="shop-item" onclick="toggleShop(this)"><div class="shop-cb">✓</div><span class="shop-item-name">Tapioca (goma)</span><span class="shop-item-qty">500g</span></div>
+    <div class="shop-item" onclick="toggleShop(this)"><div class="shop-cb">✓</div><span class="shop-item-name">Feijão-carioca seco</span><span class="shop-item-qty">500g</span></div>
+
+    <div class="shop-category"><span class="shop-category-icon">🥦</span> Vegetais</div>
+    <div class="shop-item" onclick="toggleShop(this)"><div class="shop-cb">✓</div><span class="shop-item-name">Abobrinha</span><span class="shop-item-qty">4 unidades</span></div>
+    <div class="shop-item" onclick="toggleShop(this)"><div class="shop-cb">✓</div><span class="shop-item-name">Cenoura</span><span class="shop-item-qty">1 kg</span></div>
+    <div class="shop-item" onclick="toggleShop(this)"><div class="shop-cb">✓</div><span class="shop-item-name">Chuchu</span><span class="shop-item-qty">4 unidades</span></div>
+    <div class="shop-item" onclick="toggleShop(this)"><div class="shop-cb">✓</div><span class="shop-item-name">Espinafre</span><span class="shop-item-qty">1 maço</span></div>
+    <div class="shop-item" onclick="toggleShop(this)"><div class="shop-cb">✓</div><span class="shop-item-name">Pepino japonês</span><span class="shop-item-qty">3 unidades</span></div>
+    <div class="shop-item" onclick="toggleShop(this)"><div class="shop-cb">✓</div><span class="shop-item-name">Beterraba</span><span class="shop-item-qty">3 unidades</span></div>
+
+    <div class="shop-category"><span class="shop-category-icon">🍌</span> Frutas</div>
+    <div class="shop-item" onclick="toggleShop(this)"><div class="shop-cb">✓</div><span class="shop-item-name">Banana-prata</span><span class="shop-item-qty">2 cachos</span></div>
+    <div class="shop-item" onclick="toggleShop(this)"><div class="shop-cb">✓</div><span class="shop-item-name">Maçã gala ou fuji</span><span class="shop-item-qty">1 kg</span></div>
+    <div class="shop-item" onclick="toggleShop(this)"><div class="shop-cb">✓</div><span class="shop-item-name">Pera</span><span class="shop-item-qty">1 kg</span></div>
+    <div class="shop-item" onclick="toggleShop(this)"><div class="shop-cb">✓</div><span class="shop-item-name">Mamão formosa</span><span class="shop-item-qty">1 unidade</span></div>
+    <div class="shop-item" onclick="toggleShop(this)"><div class="shop-cb">✓</div><span class="shop-item-name">Melão</span><span class="shop-item-qty">1 unidade</span></div>
+
+    <div class="shop-category"><span class="shop-category-icon">🫙</span> Condimentos e óleos</div>
+    <div class="shop-item" onclick="toggleShop(this)"><div class="shop-cb">✓</div><span class="shop-item-name">Azeite extra-virgem</span><span class="shop-item-qty">500ml</span></div>
+    <div class="shop-item" onclick="toggleShop(this)"><div class="shop-cb">✓</div><span class="shop-item-name">Sal refinado (pouco)</span><span class="shop-item-qty">1 pacote</span></div>
+    <div class="shop-item" onclick="toggleShop(this)"><div class="shop-cb">✓</div><span class="shop-item-name">Alho (para sopas)</span><span class="shop-item-qty">1 cabeça</span></div>
+    <div class="shop-item" onclick="toggleShop(this)"><div class="shop-cb">✓</div><span class="shop-item-name">Gengibre fresco</span><span class="shop-item-qty">1 pedaço</span></div>
+
+    <div class="shop-category"><span class="shop-category-icon">🍵</span> Chás</div>
+    <div class="shop-item" onclick="toggleShop(this)"><div class="shop-cb">✓</div><span class="shop-item-name">Chá de camomila</span><span class="shop-item-qty">1 caixa</span></div>
+    <div class="shop-item" onclick="toggleShop(this)"><div class="shop-cb">✓</div><span class="shop-item-name">Chá de erva-doce</span><span class="shop-item-qty">1 caixa</span></div>
+    <div class="shop-item" onclick="toggleShop(this)"><div class="shop-cb">✓</div><span class="shop-item-name">Chá de hortelã</span><span class="shop-item-qty">1 caixa</span></div>
+    <div class="shop-item" onclick="toggleShop(this)"><div class="shop-cb">✓</div><span class="shop-item-name">Chá de melissa</span><span class="shop-item-qty">1 caixa</span></div>
+
+    <button class="shop-reset-btn" onclick="resetShop()">↺ Reiniciar lista (nova semana)</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // DATE
+  const dateEl = document.getElementById('dateDisplay');
+  const now = new Date();
+  dateEl.textContent = now.toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric', month: 'short' });
+
+  // TABS
+  function switchTab(id) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    event.target.classList.add('active');
+  }
+
+  // ALERTS TOGGLE
+  function toggleAlert(el) {
+    el.classList.toggle('checked');
+    saveState();
+  }
+
+  // MEAL TOGGLE
+  function toggleMeal(block) {
+    block.classList.toggle('open');
+  }
+
+  // MEAL ITEM TOGGLE
+  function toggleMealItem(el) {
+    el.classList.toggle('done');
+    saveState();
+  }
+
+  // SHOP TOGGLE
+  function toggleShop(el) {
+    el.classList.toggle('bought');
+    saveShopState();
+  }
+
+  function resetShop() {
+    document.querySelectorAll('.shop-item').forEach(i => i.classList.remove('bought'));
+    saveShopState();
+    showToast('Lista reiniciada para nova semana!');
+  }
+
+  // WEIGHT
+  let weightHistory = JSON.parse(localStorage.getItem('weightHistory') || '[]');
+  const startWeight = 94;
+  const goalWeight = 86;
+
+  function updateWeightDisplay() {
+    const latest = weightHistory.length > 0 ? weightHistory[weightHistory.length - 1].val : startWeight;
+    document.getElementById('displayWeight').textContent = latest.toFixed(1).replace('.', ',');
+    document.getElementById('currentWeightLabel').textContent = latest.toFixed(1).replace('.', ',') + ' kg';
+    const diff = latest - goalWeight;
+    document.getElementById('weightDiff').textContent = diff.toFixed(1).replace('.', ',') + ' kg';
+    const progress = Math.max(0, Math.min(100, ((startWeight - latest) / (startWeight - goalWeight)) * 100));
+    document.getElementById('weightPct').textContent = Math.round(progress) + '%';
+    document.getElementById('weightProgress').style.width = progress + '%';
+
+    const histEl = document.getElementById('weightHistory');
+    histEl.innerHTML = '';
+    [...weightHistory].reverse().slice(0, 7).forEach(e => {
+      const div = document.createElement('div');
+      div.className = 'weight-entry';
+      const d = new Date(e.date);
+      div.innerHTML = `<span class="weight-entry-date">${d.toLocaleDateString('pt-BR')}</span><span class="weight-entry-val">${e.val.toFixed(1).replace('.', ',')} kg</span>`;
+      histEl.appendChild(div);
+    });
+  }
+
+  function saveWeight() {
+    const val = parseFloat(document.getElementById('weightInput').value);
+    if (isNaN(val) || val < 50 || val > 200) { showToast('Peso inválido'); return; }
+    weightHistory.push({ date: new Date().toISOString(), val });
+    localStorage.setItem('weightHistory', JSON.stringify(weightHistory));
+    document.getElementById('weightInput').value = '';
+    updateWeightDisplay();
+    showToast('✅ Peso registrado!');
+  }
+
+  updateWeightDisplay();
+
+  // STREAK
+  function updateStreak() {
+    const s = parseInt(localStorage.getItem('streak') || '0');
+    document.getElementById('streakCount').textContent = s;
+  }
+  updateStreak();
+
+  // SAVE STATE (por dia)
+  const todayKey = 'state_' + new Date().toISOString().slice(0, 10);
+
+  function saveState() {
+    const state = {
+      alerts: [...document.querySelectorAll('.alert-card')].map(el => el.classList.contains('checked')),
+      meals: [...document.querySelectorAll('.meal-item')].map(el => el.classList.contains('done'))
+    };
+    localStorage.setItem(todayKey, JSON.stringify(state));
+
+    // check streak: all danger alerts checked = avoided all bad items
+    const dangerAlerts = [...document.querySelectorAll('.alert-card.danger-item')];
+    const allAvoided = dangerAlerts.every(el => el.classList.contains('checked'));
+    if (allAvoided) {
+      let streak = parseInt(localStorage.getItem('streak') || '0');
+      localStorage.setItem('streak', streak + 1);
+      updateStreak();
+      showToast('🔥 Dia saudável completo!');
+    }
+  }
+
+  function saveShopState() {
+    const state = [...document.querySelectorAll('.shop-item')].map(el => el.classList.contains('bought'));
+    localStorage.setItem('shopState', JSON.stringify(state));
+  }
+
+  // LOAD STATE
+  function loadState() {
+    const saved = localStorage.getItem(todayKey);
+    if (saved) {
+      const state = JSON.parse(saved);
+      document.querySelectorAll('.alert-card').forEach((el, i) => {
+        if (state.alerts[i]) el.classList.add('checked');
+      });
+      document.querySelectorAll('.meal-item').forEach((el, i) => {
+        if (state.meals && state.meals[i]) el.classList.add('done');
+      });
+    }
+
+    const shopSaved = localStorage.getItem('shopState');
+    if (shopSaved) {
+      const shopState = JSON.parse(shopSaved);
+      document.querySelectorAll('.shop-item').forEach((el, i) => {
+        if (shopState[i]) el.classList.add('bought');
+      });
+    }
+  }
+
+  loadState();
+
+  // TOAST
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+</script>
+</body>
+</html>
